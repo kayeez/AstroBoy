@@ -1,0 +1,32 @@
+#!/bin/bash
+scpFileList='./scpFileList'
+checkNodesList='kmbd-011 kmbd-012'
+currHostName=`hostname`
+for file in `cat $scpFileList |sed '/^$/d'`
+do
+  scpProcInfo=''
+  runningNode=''
+  for node in $checkNodesList
+  do
+    if [ "$currHostNmae" == "$node" ] ;then
+       scpProcInfo=`ps -aux |grep scp |grep -v 'grep' |grep -v ssh|grep $file`
+       echo $scpProcInfo
+    else
+       scpProcInfo=`ssh $node "ps -aux |grep scp |grep -v 'grep' |grep -v ssh|grep $file"`
+    fi
+    if [ "" == "$scpProcInfo" ] ;then
+      #Not Found On $node , Continue
+      continue
+    else
+      runningNode=$node
+      #Found On $node , break
+     break 
+    fi    
+  done
+  
+  if [ "" == "$scpProcInfo" ] ;then
+    echo "scp $file  Done!"
+  else
+    echo "scp $file Running on node ${runningNode} !"
+  fi    
+done

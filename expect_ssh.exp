@@ -1,0 +1,18 @@
+#!/usr/bin/expect
+set username [lindex $argv 0]
+set host       [lindex $argv 1]
+set password [lindex $argv 3]
+set command  [lindex $argv 2]
+spawn ssh ${username}@${host} 
+expect {
+    "*yes/no" { send "yes\r"; exp_continue}  
+    "*password:" { send "$password\r" }
+}
+expect "*$username*"
+send "$command\n"
+expect {
+  "Overwrite (y/n)" {send "y\n"}
+}
+send "exit\n"
+expect eof
+#interact

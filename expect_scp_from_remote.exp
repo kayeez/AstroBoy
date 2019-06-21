@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+set username [lindex $argv 0]
+set host [lindex $argv 1]
+set password [lindex $argv 2]
+set src   [lindex $argv 3]
+set dest  [lindex $argv 4]
+spawn  scp $username@$host:$src  $dest
+expect {
+    "*yes/no" { send "yes\r"; exp_continue}  
+    "*password:" { send "$password\r" }
+}
+send "exit\n"
+expect eof
+#interact
