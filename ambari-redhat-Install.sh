@@ -446,7 +446,7 @@ echo '' > $mineRepo
 echo '[base]' >> $mineRepo
 echo "name=centos$osVersion Base" >> $mineRepo
 echo "baseurl=http://$currHostName/cdrom" >> $mineRepo
-echo "gpcheck=0" >> $mineRepo
+echo "gpgcheck=0" >> $mineRepo
 echo "enabled=1" >> $mineRepo
 
 
@@ -462,7 +462,7 @@ echo "ambari_dir:$ambari_dir"
 echo "[ambari]" >> $mineRepo
 echo "name=$ambari_repo_name" >> $mineRepo
 echo "baseurl=http://$currHostName/$ambari_dir" >> $mineRepo
-echo "gpcheck=0" >> $mineRepo
+echo "gpgcheck=0" >> $mineRepo
 echo "enabled=1" >> $mineRepo
 
 echo "" >> $mineRepo
@@ -471,7 +471,7 @@ echo "" >> $mineRepo
 echo '[hdp]' >> $mineRepo
 echo "name=hdp Base" >> $mineRepo
 echo "baseurl=http://$currHostName/hdp/HDP/centos$osVersion" >> $mineRepo
-echo "gpcheck=0" >> $mineRepo
+echo "gpgcheck=0" >> $mineRepo
 echo "enabled=1" >> $mineRepo
 
 echo "" >> $mineRepo
@@ -480,7 +480,7 @@ echo "" >> $mineRepo
 echo '[hdp-utils]' >> $mineRepo
 echo "name=hdp-utils Base" >> $mineRepo
 echo "baseurl=http://$currHostName/hdp-utils" >> $mineRepo
-echo "gpcheck=0" >> $mineRepo
+echo "gpgcheck=0" >> $mineRepo
 echo "enabled=1" >> $mineRepo
 
 echo "" >> $mineRepo
