@@ -468,18 +468,28 @@ echo "enabled=1" >> $mineRepo
 echo "" >> $mineRepo
 echo "" >> $mineRepo
 
+hdp_repo_name=`ls $httpHome/hdp`
+echo "hdp_repo_name:$hdp_repo_name"
+hdp_repo_res_dir=`ls $httpHome/hdp/$hdp_repo_name/centos$osVersion`
+echo "hdp_repo_res_dir:$hdp_repo_res_dir"
+hdp_dir="hdp/$ambari_repo_name/centos$osVersion/$hdp_repo_res_dir"
 echo '[hdp]' >> $mineRepo
 echo "name=hdp Base" >> $mineRepo
-echo "baseurl=http://$currHostName/hdp/HDP/centos$osVersion" >> $mineRepo
+echo "baseurl=http://$currHostName/$hdp_dir" >> $mineRepo
 echo "gpgcheck=0" >> $mineRepo
 echo "enabled=1" >> $mineRepo
 
 echo "" >> $mineRepo
 echo "" >> $mineRepo
 
+utils_repo_name=`ls $httpHome/hdp-utils`
+echo "utils_repo_name:$utils_repo_name"
+utils_repo_res_dir=`ls $httpHome/hdp/$utils_repo_name/centos$osVersion`
+echo "utils_repo_res_dir:$utils_repo_res_dir"
+utils_dir="hdp/$utils_repo_name/centos$osVersion/$utils_repo_res_dir"
 echo '[hdp-utils]' >> $mineRepo
 echo "name=hdp-utils Base" >> $mineRepo
-echo "baseurl=http://$currHostName/hdp-utils" >> $mineRepo
+echo "baseurl=http://$currHostName/$utils_dir" >> $mineRepo
 echo "gpgcheck=0" >> $mineRepo
 echo "enabled=1" >> $mineRepo
 
