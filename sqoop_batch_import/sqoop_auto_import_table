@@ -1,0 +1,88 @@
+#!/bin/bash
+scriptName=$0
+currDir=`dirname $0`
+function USAGE(){
+  echo "Usage:"
+  echo "$scriptName -j jdbc:mysql://localhost:3306/mysql -u root -p 123456 -d hive_database -t tableName"
+}
+jdbcURL=''
+username=''
+password=''
+hiveDatabase=''
+tableName=''
+while getopts ":j:u:p:d:t:" opt
+do
+    case $opt in
+        j)
+         jdbcURL=$OPTARG
+        ;;
+        u)
+         username=$OPTARG
+        ;;
+        p)
+         password=$OPTARG
+        ;;
+ 	d)
+         hiveDatabase=$OPTARG
+        ;;
+	t)
+         tableName=$OPTARG
+        ;;
+        ?)
+        echo "Unknown argument:$opt"
+        exit 1
+        ;;
+    esac
+done
+pass=1
+if [ "" == "$jdbcURL" ] ;then
+  echo "jdbc url can't be empty!"
+  pass=0 
+fi
+if [ "" == "$username" ] ;then
+  echo "jdbc username can't be empty!"
+  pass=0 
+fi
+if [ "" == "$password" ] ;then
+  echo "jdbc password can't be empty!"
+  pass=0 
+fi
+if [ "" == "$hiveDatabase" ] ;then
+  echo "hive database can't be empty!"
+  pass=0 
+fi
+if [ "" == "$tableName" ] ;then
+  echo "rdbms tableName can't be empty!"
+  pass=0 
+fi
+
+if [ "0" == "$pass" ] ;then
+ USAGE
+ exit 1
+fi
+failedFile=${currDir}/sqoop_import_table_${tableName}.failed
+successFile=${currDir}/sqoop_import_table_${tableName}.success
+runningFile=${currDir}/sqoop_import_table_${tableName}.running
+rm -rf $successFile $failedFile
+echo '' > $runningFile
+hive -e "use ${hiveDatabase};desc ${tableName}"
+existsCode=$?
+if [ "$existsCode" != "0" -a "$existsCode" != "17" ] ;then
+  rm -f $successFile $runningFile
+  echo '' > $failedFile
+  exit $existsCode
+fi
+tableControl="--create-hive-table"
+if [ "$existsCode" == "0" ] ;then
+  tableControl="--hive-table $tableName"
+fi
+sqoop import --connect ${jdbcURL} --username ${username} --password ${password} --fields-terminated-by '\t' --lines-terminated-by '\n' --null-string '' --null-non-string '' --hive-delims-replacement ' ' --hive-overwrite ${tableControl} --hive-database ${hiveDatabase} --hive-import --delete-target-dir --table ${tableName} --target-dir /tmp/sqoop1_tmp/import/${hiveDatabase}_${tableName} --num-mappers 1 --fetch-size 1000 
+importResultCode=$?
+if [ "0" == "$importResultCode" ] ;then
+  
+  rm -f $failedFile $runningFile
+  echo '' > $successFile
+else
+  rm -f $successFile $runningFile
+  echo '' > $failedFile
+fi

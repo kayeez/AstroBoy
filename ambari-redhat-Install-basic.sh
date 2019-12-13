@@ -474,7 +474,7 @@ hadoopHome=`su hadoop -c "echo ~"`
 scp $currDir/hadoop-authorized_keys $hadoopHome/.ssh/authorized_keys
 distributeFilesToNodes $currDir/hadoop-authorized_keys $hadoopHome/.ssh/authorized_keys
 
-executeCommandOnEachNode "chown -R hadoop:hadop $hadoopHome/.ssh"
+executeCommandOnEachNode "chown -R hadoop:hadoop $hadoopHome/.ssh"
 executeCommandOnEachNode 'su hadoop -c "chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"' 
 
 echoLineSeparator 1  '安装自带JDK'

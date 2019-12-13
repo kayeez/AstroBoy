@@ -1,0 +1,78 @@
+#!/bin/bash
+scriptName=$0
+currDir=`dirname $0`
+function USAGE(){
+  echo "Usage:"
+  echo "$scriptName  -f tableListFile"
+}
+tableListFile=''
+while getopts ":f:" opt
+do
+    case $opt in
+        f)
+         tableListFile=$OPTARG
+        ;;
+        ?)
+        echo "Unknown argument:$opt"
+        exit 1
+        ;;
+    esac
+done
+pass=1
+if [ "" == "$tableListFile" ] ;then
+  echo "table list file can't be empty!"
+  pass=0
+fi
+if [ "0" == "$pass" ] ;then
+ USAGE
+ exit 1
+fi
+if [ ! -e "$tableListFile" ] ;then
+  echo "file $tableListFile not exists!"
+  exit 1
+fi
+runnningTableList=''
+successTableList=''
+failedTableList=''
+for i in `cat $tableListFile|sed '/^$/d'`
+do
+  count=`ps -ef|grep sqoop_auto_import|grep -v grep |grep $i|wc -l`
+  if [ "0" == "$count" ] ;then
+    #no process running
+    successCount=`ls -l $currDir|grep sqoop_import_table_${i}.success|wc -l`
+    if [ "1" == "$successCount" ] ;then
+      successTableList="$successTableList $i"
+    else
+      failedCount=`ls -l $currDir|grep sqoop_import_table_${i}.failed|wc -l`
+      if [ "1" == "$failedCount" ] ;then
+         failedTableList="$failedTableList $i"
+      fi
+    fi
+  else
+    #has process running
+    runningTableList="$runningTableList $i"    
+  fi
+done
+
+echo 'runnning table list:'
+echo '****************************************************'
+echo "$runningTableList"|awk '{for(i=1;i<=NF;i++){print "*      "$i}}'
+echo '****************************************************'
+echo ''
+
+
+echo 'success table list:'
+echo '****************************************************'
+echo "$successTableList"|awk '{for(i=1;i<=NF;i++){print "*      "$i}}'
+echo '****************************************************'
+echo ''
+
+echo 'failed table list:'
+echo '****************************************************'
+echo "$failedTableList"|awk '{for(i=1;i<=NF;i++){print "*      "$i}}'
+echo '****************************************************'
+echo ''
+
+
+
+

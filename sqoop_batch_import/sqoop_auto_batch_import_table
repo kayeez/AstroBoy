@@ -1,0 +1,71 @@
+#!/bin/bash
+scriptName=$0
+currDir=`dirname $0`
+function USAGE(){
+  echo "Usage:"
+  echo "$scriptName -j jdbc:mysql://localhost:3306/mysql -u root -p 123456 -d hive_database -f tableListFile"
+}
+jdbcURL=''
+username=''
+password=''
+hiveDatabase=''
+tableListFile=''
+while getopts ":j:u:p:d:f:" opt
+do
+    case $opt in
+        j)
+         jdbcURL=$OPTARG
+        ;;
+        u)
+         username=$OPTARG
+        ;;
+        p)
+         password=$OPTARG
+        ;;
+ 	d)
+         hiveDatabase=$OPTARG
+        ;;
+        f)
+         tableListFile=$OPTARG
+        ;;
+        ?)
+        echo "Unknown argument:$opt"
+        exit 1
+        ;;
+    esac
+done
+pass=1
+if [ "" == "$jdbcURL" ] ;then
+  echo "jdbc url can't be empty!"
+  pass=0 
+fi
+if [ "" == "$username" ] ;then
+  echo "jdbc username can't be empty!"
+  pass=0 
+fi
+if [ "" == "$password" ] ;then
+  echo "jdbc password can't be empty!"
+  pass=0 
+fi
+if [ "" == "$hiveDatabase" ] ;then
+  echo "hive database can't be empty!"
+  pass=0 
+fi
+if [ "" == "$tableListFile" ] ;then
+  echo "table list file can't be empty!"
+  pass=0
+fi
+if [ "0" == "$pass" ] ;then
+ USAGE
+ exit 1
+fi
+if [ ! -e "$tableListFile" ] ;then
+  echo "file $tableListFile not exists!"
+  exit 1
+fi
+for i in `cat $tableListFile|sed '/^$/d'`
+do
+   cmd="$currDir/sqoop_auto_import_table -j $jdbcURL -u $username -p $password -d $hiveDatabase -t $i"
+   echo "$cmd"
+   nohup $cmd > $currDir/sqoop_auto_import_table_$i.log 2>&1 &
+done
